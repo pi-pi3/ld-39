@@ -1,0 +1,7 @@
+
+tmp/
+*.swp
+target/
+release/
+project/
+*.love
