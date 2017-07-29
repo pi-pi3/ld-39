@@ -24,8 +24,8 @@ function global:_load()
     self.gui_font = love.graphics.newFont()
     love.graphics.setFont(self.font)
 
-    self.mode = 'camera' -- camera, select, move, build
-    self.building = ''
+    self.mode = 'select' -- camera, select, move, build
+    self.building = nil
     self.cursor = cpml.vec2(20, 20)
     self.selected = nil
     self.cell_types = {}
@@ -44,14 +44,13 @@ function global:update()
     table.insert(self.bar, {title = 'm', value = self.mode})
     table.insert(self.bar, {value = cell.pos(self.cursor)})
 
-    if self.building then
+    if self.mode == 'build' and self.building then
         table.insert(self.bar, {title = 'b', value = self.building})
     end
     if self.children[self.selected] then
         table.insert(self.bar, {title = 'sel',
                                 value = self.children[self.selected].id})
     end
-
 
     if self.mode == 'build' then
         table.insert(self.gui, {value = '(a) House'})
