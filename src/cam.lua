@@ -25,19 +25,21 @@ end
 
 function cam:_keydown(_, _, key)
     if global.mode == 'camera' then
+        local c = math.cos(math.rad(60))
+        local s = math.sin(math.rad(60))
         if key == 'game:enter' then
         elseif key == 'game:left' then
             self.position = self.position + cpml.vec2(-1, 0)
         elseif key == 'game:right' then
             self.position = self.position + cpml.vec2(1, 0)
         elseif key == 'game:upl' then
-            self.position = self.position + cpml.vec2(-1, -1)
+            self.position = self.position + cpml.vec2(-c, -s)
         elseif key == 'game:upr' then
-            self.position = self.position + cpml.vec2(1, -1)
+            self.position = self.position + cpml.vec2(c, -s)
         elseif key == 'game:downl' then
-            self.position = self.position + cpml.vec2(-1, 1)
+            self.position = self.position + cpml.vec2(-c, s)
         elseif key == 'game:downr' then
-            self.position = self.position + cpml.vec2(1, 1)
+            self.position = self.position + cpml.vec2(c, s)
         elseif key == 'game:up' then
             self.position = self.position + cpml.vec2(0, -1)
         elseif key == 'game:down' then
