@@ -1,0 +1,5 @@
+{
+    "t": "node",
+    "src:script": "src://global.lua",
+    "[node]:children": {},
+}

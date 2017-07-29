@@ -1,0 +1,24 @@
+- literal fuel
+  - coal, oil, etc.
+  - oil lamp/flashlight
+    - horror? (not a 3d Amnesia clone)
+- human fuel
+  - coffee/pizza (or tea/bagel if you're British)
+- 'magic power'
+  - "The kingdom is running short on power, you must save it"
+    - x pillars of power
+    - roguelike
+- economy & ecology based strategy game
+  - hex           H T
+  - rts          e @ P
+  - text based    F f
+    - but really OpenGL graphics, like DF
+  - map cells
+    - @ - a unit
+    - c - coal & other fossil fuels, can be used to build mines
+    - e - power plant, provides energy, requires fuel 
+            (creates pollution when used with low quality fuels)
+    - f - forest, provides wood, food, oxygen
+    - F - Food, provides food, requires energy
+    - H - House, provides rest, home, entertainment
+    - P - Park, provides oxygen, entertainment

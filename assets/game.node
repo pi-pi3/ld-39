@@ -1,0 +1,7 @@
+{
+    "t": "node2d/cam",
+    "src:script": "src://cam.lua",
+    "[node]:children": {
+        "global": "assets://global.node",
+    },
+}
