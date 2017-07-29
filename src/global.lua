@@ -9,33 +9,38 @@ local unit = require('src/cell/unit')
 local global = {}
 
 function global:_load()
-    input.add_keycode('global:set_camera_mode', 'q')
-    input.add_keycode('global:set_select_mode', 'w')
-    input.add_keycode('global:set_move_mode',   'e')
-    input.add_keycode('global:set_build_mode',  'r')
-    input.add_keycode('global:dec_tick',        '[')
-    input.add_keycode('global:inc_tick',        ']')
+    input.add_keycode('global:set_camera_mode',  'q')
+    input.add_keycode('global:set_select_mode',  'w')
+    input.add_keycode('global:set_move_mode',    'e')
+    input.add_keycode('global:set_build_mode',   'r')
+    input.add_keycode('global:set_destroy_mode', 't')
+    input.add_keycode('global:dec_tick',         '[')
+    input.add_keycode('global:inc_tick',         ']')
+    input.add_keycode('global:pause',            'space')
 
     input.add_keycode('global:build_house',      'a')
     input.add_keycode('global:build_farm',       's')
     input.add_keycode('global:build_powerplant', 'd')
     input.add_keycode('global:build_park',       'z')
     input.add_keycode('global:build_townhall',   'x')
+    input.add_keycode('global:build_mine',       'c')
 
     self.font = love.graphics.newFont('assets/fonts/vcr_osd_mono.ttf', 20)
     self.gui_font = love.graphics.newFont()
     love.graphics.setFont(self.font)
 
-    self.mode = 'select' -- camera, select, move, build
+    self.mode = 'select' -- camera, select, move, build, destroy
     self.building = nil
     self.cursor = cpml.vec2(20, 20)
     self.selected = nil
     self.cell_types = {}
     self.cells = {}
 
-    self.tick_length = 1
+    self.is_paused = false
+    self.tick_length = 2
     self.tick_timer = 0
 
+    self.topbar = {}
     self.bar = {}
     self.gui = {}
 
@@ -44,20 +49,27 @@ function global:_load()
     self.grass = {',', '.', '\'', '"', '`'}
     self.grass_color = {30, 121, 41}
 
-    self.material = 0
-    self.pollution = 0
+    self.stats = {}
+    self.stats.material = 0
+    self.stats.pollution = 0
 
     self:rand()
 end
 
 function global:update(dt)
+    self.topbar = {}
     self.bar = {}
     self.gui = {}
 
-    self.tick_timer = self.tick_timer + dt
-    if self.tick_timer > self.tick_length then
-        self.tick_timer = self.tick_timer - self.tick_length 
-        self:signal('tick')
+    table.insert(self.topbar, {title = 'material', value = self.stats.material})
+    table.insert(self.topbar, {title = 'pollution', value = self.stats.pollution})
+
+    if not self.is_paused then
+        self.tick_timer = self.tick_timer + dt
+        if self.tick_timer > self.tick_length then
+            self.tick_timer = self.tick_timer - self.tick_length 
+            self:signal('tick')
+        end
     end
 
     if self.tick_timer < self.tick_length * 0.5 then
@@ -83,6 +95,7 @@ function global:update(dt)
         table.insert(self.gui, {value = '(d) Powerplant'})
         table.insert(self.gui, {value = '(z) Park'})
         table.insert(self.gui, {value = '(x) Townhall'})
+        table.insert(self.gui, {value = '(c) Mine'})
     else
         table.insert(self.gui, {title = 'yui  789\nh*k  4*6\nnm,  123\n'})
     end
@@ -116,10 +129,27 @@ function global:postdraw()
     love.graphics.setColor(0, 0, 0)
     love.graphics.rectangle('fill', 576, 0, 208, 384)
     love.graphics.rectangle('fill', 0, 364, 576, 20)
+    love.graphics.rectangle('fill', 0, 0, 576, 20)
 
     love.graphics.setColor(255, 255, 255)
     love.graphics.line(576, 0, 576, 384)
     love.graphics.line(0, 364, 576, 364)
+    love.graphics.line(0, 20, 576, 20)
+
+    love.graphics.setFont(self.gui_font)
+    local text = ''
+    for i, v in ipairs(self.topbar) do
+        if v.title and v.value then
+            text = text .. v.title .. ': ' .. tostring(v.value) .. ' '
+        elseif v.title then
+            text = text .. v.title .. ' '
+        elseif v.value then
+            text = text .. tostring(v.value) .. ' '
+        else
+            text = text .. v.title
+        end
+    end
+    love.graphics.print(text, 8, 4)
 
     love.graphics.setFont(self.gui_font)
     local text = ''
@@ -134,7 +164,7 @@ function global:postdraw()
             text = text .. v.title
         end
     end
-    love.graphics.print(text, 8, 364)
+    love.graphics.print(text, 8, 368)
 
     local text = ''
     for i, v in ipairs(self.gui) do
@@ -170,10 +200,12 @@ function global:rand()
         end
     end
 
-    local adam = unit.new(20, 22)
+    local adam = unit.new(20, 20)
     local eve = unit.new(22, 20)
+    local kain = unit.new(20, 22)
     self:set_cell(adam)
     self:set_cell(eve)
+    self:set_cell(kain)
 end
 
 function global:set_cell(cell)
@@ -230,6 +262,10 @@ function global:_keypressed(_, _, key)
         self.mode = 'move'
     elseif key == 'global:set_build_mode' then
         self.mode = 'build'
+    elseif key == 'global:set_destroy_mode' then
+        self.mode = 'destroy'
+    elseif key == 'global:pause' then
+        self.is_paused = not self.is_paused
     elseif key == 'game:enter' then
         if self.mode == 'select' and self.selected ~= cell.pos(self.cursor) then 
             self.selected = cell.pos(self.cursor)
@@ -237,8 +273,15 @@ function global:_keypressed(_, _, key)
             self.selected = nil
         elseif self.mode == 'build' and self.building then
             local building = require('src/cell/' .. self.building)
-            local building = building.new(self.cursor.x, self.cursor.y)
-            self:set_cell(building)
+            if self.stats.material >= building.build.material then
+                local tile = self.children[cell.pos(self.cursor)] 
+                local type = tile and tile.type or 'grass'
+                if building.build.on[type] then
+                    self.stats.material = self.stats.material - building.build.material 
+                    local building = building.new(self.cursor.x, self.cursor.y)
+                    self:set_cell(building)
+                end
+            end
         end
     elseif key == 'global:inc_tick' then
         self.tick_length = math.min(self.tick_length * 2, 8)
@@ -257,10 +300,12 @@ function global:_keypressed(_, _, key)
             self.building = 'park'
         elseif key == 'global:build_townhall' then
             self.building = 'townhall'
+        elseif key == 'global:build_mine' then
+            self.building = 'mine'
         end
     end
 
-    if self.mode == 'select' or self.mode == 'build'  then
+    if self.mode == 'select' or self.mode == 'build' or self.mode == 'destroy' then
         if key == 'game:left' then
             self.cursor = self.cursor + cpml.vec2(-1, 0)
         elseif key == 'game:right' then

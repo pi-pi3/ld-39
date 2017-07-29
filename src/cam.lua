@@ -28,6 +28,7 @@ end
 
 function cam:_update(dt)
     self.position = self.position + self.velocity * dt
+    self.velocity = cpml.vec2()
 end
 
 function cam:_keydown(_, _, key)
@@ -52,8 +53,6 @@ function cam:_keydown(_, _, key)
             self.velocity = cpml.vec2(0*speed, -1*speed)
         elseif key == 'game:down' then
             self.velocity = cpml.vec2(0*speed, 1*speed)
-        else
-            self.velocity = cpml.vec2()
         end
     end
 end

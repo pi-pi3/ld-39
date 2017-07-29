@@ -23,9 +23,9 @@ function forest.new(x, y)
     self.colour = {71, 144, 48}
 
     self.radius = 5
-    self.stats = {human = 0}
-    self.provides = {food = 2, oxygen = 3, fuel = 1, material = 1}
-    self.requires = {human = 2}
+    self.stats = {food = 5, material = 1}
+    self.provides = {oxygen = 3}
+    self.requires = {}
 
     return self
 end

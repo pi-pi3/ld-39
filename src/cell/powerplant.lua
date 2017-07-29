@@ -23,9 +23,10 @@ function powerplant.new(x, y)
     self.colour = {51, 100, 135}
 
     self.radius = 5
-    self.stats = {human = 2}
+    self.stats = {human = 0, fuel = 2}
     self.provides = {energy = 4}
-    self.requires = {human = 2}
+    self.requires = {human = 1, fuel = 1}
+    self.takes = {unit = {rest = 1, entertainment = 1, health = 1}}
 
     return self
 end

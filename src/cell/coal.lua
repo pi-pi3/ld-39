@@ -23,9 +23,9 @@ function coal.new(x, y)
     self.colour = {49, 49, 71}
 
     self.radius = 5
-    self.stats = {human = 0}
-    self.provides = {fuel = 3}
-    self.requires = {human = 1}
+    self.stats = {material = 5}
+    self.provides = {}
+    self.requires = {}
 
     return self
 end

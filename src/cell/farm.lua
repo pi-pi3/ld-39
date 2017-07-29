@@ -26,6 +26,7 @@ function farm.new(x, y)
     self.stats = {human = 0, energy = 1}
     self.provides = {food = 4}
     self.requires = {human = 2, energy = 1}
+    self.takes = {unit = {rest = 1, entertainment = 1, health = 1}}
 
     return self
 end

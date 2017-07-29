@@ -26,6 +26,7 @@ function townhall.new(x, y)
     self.stats = {human = 0, energy = 3}
     self.provides = {peace = 10}
     self.requires = {human = 3, energy = 3}
+    self.takes = {unit = {rest = 1, entertainment = 1, health = 1}}
 
     return self
 end

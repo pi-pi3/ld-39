@@ -24,7 +24,7 @@ function house.new(x, y)
 
     self.radius = 5
     self.stats = {energy = 1}
-    self.provides = {rest = 3, entertainment = 1, health = 1}
+    self.provides = {rest = 3, entertainment = 3, health = 3}
     self.requires = {energy = 1}
 
     return self

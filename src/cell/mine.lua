@@ -19,13 +19,14 @@ function mine.new(x, y)
 
     self.type = 'mine'
 
-    self.character = 'c'
-    self.colour = {49, 49, 71}
+    self.character = 'm'
+    self.colour = {87, 43, 21}
 
     self.radius = 5
     self.stats = {human = 0}
     self.provides = {fuel = 3}
     self.requires = {human = 1}
+    self.takes = {unit = {rest = 2, entertainment = 2, health = 2}}
 
     return self
 end

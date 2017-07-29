@@ -34,6 +34,13 @@ function cell:update()
         for k, v in pairs(self.provides) do
             table.insert(global.gui, {title = ' ' .. k, value = tostring(v)})
         end
+
+        if self.takes then
+            table.insert(global.gui, {title = 'Takes'})
+            for k, v in pairs(self.takes) do
+                table.insert(global.gui, {title = ' ' .. k, value = tostring(v)})
+            end
+        end
     end
 end
 
@@ -125,34 +132,35 @@ function cell:good_eh()
     return true
 end
 
-function cell:requires_any(t)
-    for k, _ in pairs(t) do
-        if self.requires[k] then
-            return true
-        end
-    end
-
-    return false
-end
-
 function cell:tick()
-    for k, v in pairs(self.requires) do
-        self.stats[k] = self.stats[k] - v
-    end
+    if self:good_eh() then
+        local resources = table.copy(self.provides)
+        for _, other in pairs(global.children) do
+            if self:dist(other) <= self.radius then
+                for k, r in pairs(other.requires) do
+                    local resource = resources[k] 
+                    local needed = r - other.stats[k]
+                    if resource and needed > 0 then 
+                        local used = math.min(resource, needed)
 
-    local resources = table.copy(self.provides)
-    for _, v in pairs(global.children) do
-        if self:dist(v) <= self.radius then
-            for k, r in pairs(v.requires) do
-                if resources[k] and resources[k] >= r then
-                    v.stats[k] = v.stats[k] + r
-                    resources[k] = resources[k] - r
-                elseif resources[k] then
-                    v.stats[k] = v.stats[k] + resources[k]
-                    resources[k] = 0
+                        other.stats[k] = other.stats[k] + used
+                        resources[k] = resources[k] - used
+
+                        if other.takes and other.takes[self.type] then
+                            local takes = other.takes[self.type]
+                            for k, other in pairs(takes) do
+                                self.stats[k] = math.max(self.stats[k] - other,
+                                                         0)
+                            end
+                        end
+                    end
                 end
             end
         end
+    end
+
+    for k, v in pairs(self.requires) do
+        self.stats[k] = math.max(self.stats[k] - v, 0)
     end
 end
 
