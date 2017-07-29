@@ -111,7 +111,7 @@ function cell:dist(other)
     if math.sign(dx) == math.sign(dy) then
         return math.abs(dx + dy)
     else
-        return math.max(abs(dx), abs(dy))
+        return math.max(math.abs(dx), math.abs(dy))
     end
 end
 
@@ -144,12 +144,12 @@ function cell:tick()
     for _, v in pairs(global.children) do
         if self:dist(v) <= self.radius then
             for k, r in pairs(v.requires) do
-                if t[k] and t[k] >= r then
+                if resources[k] and resources[k] >= r then
                     v.stats[k] = v.stats[k] + r
-                    t[k] = t[k] - r
-                else
-                    v.stats[k] = v.stats[k] + t[k]
-                    t[k] = 0
+                    resources[k] = resources[k] - r
+                elseif resources[k] then
+                    v.stats[k] = v.stats[k] + resources[k]
+                    resources[k] = 0
                 end
             end
         end

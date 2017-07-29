@@ -3,6 +3,7 @@ local cpml = require('cpml')
 local cell = require('src/cell')
 local powerplant = {}
 local mt = {__index = powerplant}
+powerplant.build = {material = 5, on = {grass = true, forest = true}}
 
 local global
 

@@ -40,8 +40,11 @@ function unit:update()
         local a = unit.pos(self.pos_last)
         local b = self:pos()
 
-        global:move_cell(a, b)
-        self.pos_last = cpml.vec2(self.position.x, self.position.y)
+        if global:move_cell(a, b) then
+            self.pos_last = cpml.vec2(self.position.x, self.position.y)
+        else
+            self.position = cpml.vec2(self.pos_last.x, self.pos_last.y)
+        end
     end
 end
 

@@ -13,6 +13,8 @@ function global:_load()
     input.add_keycode('global:set_select_mode', 'w')
     input.add_keycode('global:set_move_mode',   'e')
     input.add_keycode('global:set_build_mode',  'r')
+    input.add_keycode('global:dec_tick',        '[')
+    input.add_keycode('global:inc_tick',        ']')
 
     input.add_keycode('global:build_house',      'a')
     input.add_keycode('global:build_farm',       's')
@@ -31,15 +33,38 @@ function global:_load()
     self.cell_types = {}
     self.cells = {}
 
+    self.tick_length = 1
+    self.tick_timer = 0
+
     self.bar = {}
     self.gui = {}
+
+    self.world_width = 64
+    self.world_height = 64
+    self.grass = {',', '.', '\'', '"', '`'}
+    self.grass_color = {30, 121, 41}
+
+    self.material = 0
+    self.pollution = 0
 
     self:rand()
 end
 
-function global:update()
+function global:update(dt)
     self.bar = {}
     self.gui = {}
+
+    self.tick_timer = self.tick_timer + dt
+    if self.tick_timer > self.tick_length then
+        self.tick_timer = self.tick_timer - self.tick_length 
+        self:signal('tick')
+    end
+
+    if self.tick_timer < self.tick_length * 0.5 then
+        table.insert(self.bar, {title = 'T', value = self.tick_length .. 's'})
+    else
+        table.insert(self.bar, {title = 't', value = self.tick_length .. 's'})
+    end
 
     table.insert(self.bar, {title = 'm', value = self.mode})
     table.insert(self.bar, {value = cell.pos(self.cursor)})
@@ -59,11 +84,26 @@ function global:update()
         table.insert(self.gui, {value = '(z) Park'})
         table.insert(self.gui, {value = '(x) Townhall'})
     else
-        table.insert(self.gui, {title = 'yui  789\nh*k  4*6\nnm,  123'})
+        table.insert(self.gui, {title = 'yui  789\nh*k  4*6\nnm,  123\n'})
     end
 end
 
 function global:postdraw()
+    local seed = love.math.getRandomSeed()
+    for y = 1, self.world_height do
+        for x = 1, self.world_width do
+            local point = {x, y}
+            if not self.children[cell.pos(point)] then
+                love.graphics.setColor(self.grass_color)
+                -- completely arbitrary
+                love.math.setRandomSeed(x + x*y + math.floor(x/y))
+                local i = love.math.random(1, #self.grass)
+                love.graphics.print(self.grass[i], cell.real_coord(point))
+            end
+        end
+    end
+    love.math.setRandomSeed(seed)
+
     love.graphics.push()
 
     love.graphics.translate(cell.real_coord(self.cursor - cpml.vec2(1/4, 0)))
@@ -121,8 +161,8 @@ function global:rand()
     local env = {require('src/cell/coal'), require('src/cell/forest'),
                  require('src/cell/water')}
 
-    for y = 1, 64 do
-        for x = 1, 64 do
+    for y = 1, self.world_height do
+        for x = 1, self.world_width do
             if math.random() < 0.1 then
                 local cell = env[math.random(1, #env)].new(x, y)
                 self:set_cell(cell)
@@ -150,6 +190,10 @@ function global:set_cell(cell)
 end
 
 function global:move_cell(a, b)
+    if self.children[b] then
+        return false
+    end
+
     local cell = self.children[a]
 
     self:remove(a)
@@ -159,6 +203,8 @@ function global:move_cell(a, b)
         self.selected = b
         self.cursor = cpml.vec2(cell.position.x, cell.position.y)
     end
+
+    return true
 end
 
 function global:add(cell, key)
@@ -185,13 +231,19 @@ function global:_keypressed(_, _, key)
     elseif key == 'global:set_build_mode' then
         self.mode = 'build'
     elseif key == 'game:enter' then
-        if self.mode == 'select' then 
+        if self.mode == 'select' and self.selected ~= cell.pos(self.cursor) then 
             self.selected = cell.pos(self.cursor)
+        elseif self.mode == 'select' then
+            self.selected = nil
         elseif self.mode == 'build' and self.building then
             local building = require('src/cell/' .. self.building)
             local building = building.new(self.cursor.x, self.cursor.y)
             self:set_cell(building)
         end
+    elseif key == 'global:inc_tick' then
+        self.tick_length = math.min(self.tick_length * 2, 8)
+    elseif key == 'global:dec_tick' then
+        self.tick_length = math.max(self.tick_length * 0.5, 0.25)
     end
 
     if self.mode == 'build' then
@@ -208,7 +260,7 @@ function global:_keypressed(_, _, key)
         end
     end
 
-    if self.mode == 'select'  then
+    if self.mode == 'select' or self.mode == 'build'  then
         if key == 'game:left' then
             self.cursor = self.cursor + cpml.vec2(-1, 0)
         elseif key == 'game:right' then

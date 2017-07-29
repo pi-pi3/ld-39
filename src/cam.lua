@@ -23,29 +23,37 @@ function cam:_load()
     input.add_keycode('game:down',  'm', 'kp2', 'down')
 
     self.position = cpml.vec2(768, 512)
+    self.velocity = cpml.vec2()
+end
+
+function cam:_update(dt)
+    self.position = self.position + self.velocity * dt
 end
 
 function cam:_keydown(_, _, key)
     if global.mode == 'camera' then
         local c = math.cos(math.rad(60))
         local s = math.sin(math.rad(60))
+        local speed = 1000
         if key == 'game:enter' then
         elseif key == 'game:left' then
-            self.position = self.position + cpml.vec2(-1, 0)
+            self.velocity = cpml.vec2(-1*speed, 0*speed)
         elseif key == 'game:right' then
-            self.position = self.position + cpml.vec2(1, 0)
+            self.velocity = cpml.vec2(1*speed, 0*speed)
         elseif key == 'game:upl' then
-            self.position = self.position + cpml.vec2(-c, -s)
+            self.velocity = cpml.vec2(-c*speed, -s*speed)
         elseif key == 'game:upr' then
-            self.position = self.position + cpml.vec2(c, -s)
+            self.velocity = cpml.vec2(c*speed, -s*speed)
         elseif key == 'game:downl' then
-            self.position = self.position + cpml.vec2(-c, s)
+            self.velocity = cpml.vec2(-c*speed, s*speed)
         elseif key == 'game:downr' then
-            self.position = self.position + cpml.vec2(c, s)
+            self.velocity = cpml.vec2(c*speed, s*speed)
         elseif key == 'game:up' then
-            self.position = self.position + cpml.vec2(0, -1)
+            self.velocity = cpml.vec2(0*speed, -1*speed)
         elseif key == 'game:down' then
-            self.position = self.position + cpml.vec2(0, 1)
+            self.velocity = cpml.vec2(0*speed, 1*speed)
+        else
+            self.velocity = cpml.vec2()
         end
     end
 end

@@ -1,13 +1,13 @@
 
 local cpml = require('cpml')
 local cell = require('src/cell')
-local coal = {}
-local mt = {__index = coal}
-coal.build = false
+local mine = {}
+local mt = {__index = mine}
+mine.build = {material = 2, on = {coal = true}}
 
 local global
 
-function coal.new(x, y)
+function mine.new(x, y)
     if not global then
         global = lib4.root.children.global
     end
@@ -17,7 +17,7 @@ function coal.new(x, y)
 
     self.position = cpml.vec2(x, y)
 
-    self.type = 'coal'
+    self.type = 'mine'
 
     self.character = 'c'
     self.colour = {49, 49, 71}
@@ -30,8 +30,8 @@ function coal.new(x, y)
     return self
 end
 
-setmetatable(coal, {
+setmetatable(mine, {
     __index = cell,
-    __call = function(_, ...) return coal.new(...) end,
+    __call = function(_, ...) return mine.new(...) end,
 })
-return coal
+return mine

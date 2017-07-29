@@ -3,6 +3,7 @@ local cpml = require('cpml')
 local cell = require('src/cell')
 local forest = {}
 local mt = {__index = forest}
+forest.build = false
 
 local global
 
