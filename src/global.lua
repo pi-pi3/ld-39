@@ -12,8 +12,13 @@ function global:_load()
     input.add_keycode('global:set_camera_mode', 'q')
     input.add_keycode('global:set_select_mode', 'w')
     input.add_keycode('global:set_move_mode',   'e')
-    input.add_keycode('global:set_build_mode',  'b')
-    input.add_keycode('global:build_house',     'h')
+    input.add_keycode('global:set_build_mode',  'r')
+
+    input.add_keycode('global:build_house',      'a')
+    input.add_keycode('global:build_farm',       's')
+    input.add_keycode('global:build_powerplant', 'd')
+    input.add_keycode('global:build_park',       'z')
+    input.add_keycode('global:build_townhall',   'x')
 
     self.font = love.graphics.newFont('assets/fonts/vcr_osd_mono.ttf', 20)
     self.gui_font = love.graphics.newFont()
@@ -46,9 +51,20 @@ function global:update()
         table.insert(self.bar, {title = 'sel',
                                 value = self.children[self.selected].id})
     end
+
+
+    if self.mode == 'build' then
+        table.insert(self.gui, {value = '(a) House'})
+        table.insert(self.gui, {value = '(s) Farm'})
+        table.insert(self.gui, {value = '(d) Powerplant'})
+        table.insert(self.gui, {value = '(z) Park'})
+        table.insert(self.gui, {value = '(x) Townhall'})
+    else
+        table.insert(self.gui, {title = 'yui  789\nh*k  4*6\nnm,  123'})
+    end
 end
 
-function global:draw()
+function global:postdraw()
     love.graphics.push()
 
     love.graphics.translate(cell.real_coord(self.cursor - cpml.vec2(1/4, 0)))
@@ -57,6 +73,11 @@ function global:draw()
     love.graphics.polygon('line', 0, 0, 12, 24, 24, 0)
 
     love.graphics.origin()
+
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.rectangle('fill', 576, 0, 208, 384)
+    love.graphics.rectangle('fill', 0, 364, 576, 20)
+
     love.graphics.setColor(255, 255, 255)
     love.graphics.line(576, 0, 576, 384)
     love.graphics.line(0, 364, 576, 364)
@@ -177,6 +198,14 @@ function global:_keypressed(_, _, key)
     if self.mode == 'build' then
         if key == 'global:build_house' then
             self.building = 'house'
+        elseif key == 'global:build_farm' then
+            self.building = 'farm'
+        elseif key == 'global:build_powerplant' then
+            self.building = 'powerplant'
+        elseif key == 'global:build_park' then
+            self.building = 'park'
+        elseif key == 'global:build_townhall' then
+            self.building = 'townhall'
         end
     end
 
