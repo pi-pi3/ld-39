@@ -18,8 +18,8 @@ function water.new(x, y)
 
     self.type = 'water'
 
-    self.character = 'c'
-    self.colour = {49, 49, 71}
+    self.character = 'w'
+    self.colour = {95, 124, 198}
 
     self.radius = 5
     self.stats = {}

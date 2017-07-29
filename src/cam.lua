@@ -21,6 +21,8 @@ function cam:_load()
     input.add_keycode('game:downr', ',', 'kp3')
     input.add_keycode('game:up',    'u', 'kp8', 'up')
     input.add_keycode('game:down',  'm', 'kp2', 'down')
+
+    self.position = cpml.vec2(768, 512)
 end
 
 function cam:_keydown(_, _, key)

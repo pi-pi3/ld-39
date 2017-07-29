@@ -21,7 +21,7 @@ function global:_load()
 
     self.mode = 'camera' -- camera, select, move, build
     self.building = ''
-    self.cursor = cpml.vec2(1, 1)
+    self.cursor = cpml.vec2(20, 20)
     self.selected = nil
     self.cell_types = {}
     self.cells = {}
@@ -98,8 +98,22 @@ function global:rand()
     self.cells = {}
     self.children = {}
 
-    local unit = unit.new(1, 1)
-    self:set_cell(unit)
+    local env = {require('src/cell/coal'), require('src/cell/forest'),
+                 require('src/cell/water')}
+
+    for y = 1, 64 do
+        for x = 1, 64 do
+            if math.random() < 0.1 then
+                local cell = env[math.random(1, #env)].new(x, y)
+                self:set_cell(cell)
+            end
+        end
+    end
+
+    local adam = unit.new(20, 22)
+    local eve = unit.new(22, 20)
+    self:set_cell(adam)
+    self:set_cell(eve)
 end
 
 function global:set_cell(cell)
